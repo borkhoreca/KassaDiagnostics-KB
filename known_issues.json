@@ -1,24 +1,56 @@
 [
-    {
-        "ID": "ISSUE-001",
-        "Titel": "ACPI / Volmgr Crash (Intel 300)",
-        "Triggers": {
-            "EventIDs": [56, 161, 41]
-        },
-        "RootCause": "Harde Hardware/Moederbord Freezes. Systeem valt structureel uit doordat Windows de communicatie met de schijf verliest na een ACPI storing.",
-        "Acties": "1. Update het BIOS van de Intel 300 Series Chipset.\n2. Update de Intel SPI Flash / ACPI drivers.",
-        "SuccesScore": 4,
-        "FaalScore": 0
+  {
+    "Titel": "Onverwachte Stroomuitval of Harde Reset",
+    "Triggers": {
+      "EventIDs": [41]
     },
-    {
-        "ID": "ISSUE-002",
-        "Titel": "SQL Database Timeout / Corruptie",
-        "Triggers": {
-            "EventIDs": [833, 17890]
-        },
-        "RootCause": "SQL Server kan de schijf niet snel genoeg wegschrijven (I/O bottleneck) of database is verdacht.",
-        "Acties": "1. Draai DBCC CHECKDB op de kassa.\n2. Controleer via SMART-tools of de SSD aan het falen is.",
-        "SuccesScore": 12,
-        "FaalScore": 1
-    }
+    "RootCause": "De kassa is plotseling uitgevallen zonder netjes af te sluiten. Dit wordt meestal veroorzaakt door stroomonderbreking (stekker getrokken), een defecte of oververhitte voeding (PSU), of een kapotte UPS/noodstroomvoorziening.",
+    "Acties": "1. Controleer de stroomkabel en de stekkerdoos onder het kassa-meubel op losse contacten.\n2. Controleer of de ventilator van de kassa draait (oververhitting).\n3. Test de externe voedingsadapter met een multimeter of vervang deze testgemakshalve.",
+    "SuccesScore": 5
+  },
+  {
+    "Titel": "ACPI / Storage Controller Communicatiefout",
+    "Triggers": {
+      "EventIDs": [56]
+    },
+    "RootCause": "De Intel Storage/ACPI driver heeft de verbinding met de SSD/HDD kortstondig verloren. Dit komt veel voor op Intel 300-series en NUC moederborden in combinatie met Windows Energiebeheer (Fast Startup).",
+    "Acties": "1. Schakel 'Snel opstarten' (Fast Startup) uit in Windows Energiebeheer.\n2. Update de Intel Chipset en Serial IO drivers.\n3. Raadpleeg de fabrikant voor een BIOS-update van het kassa-moederbord.",
+    "SuccesScore": 4
+  },
+  {
+    "Titel": "Voorgaande Afsluiting Onverwacht (Crash/Thermal)",
+    "Triggers": {
+      "EventIDs": [6008]
+    },
+    "RootCause": "Windows registreert bij de volgende herstart dat het systeem de vorige keer niet correct is afgesloten. Vaak het directe gevolg van een BSOD, vastloper of thermische uitschakeling ter bescherming van de CPU.",
+    "Acties": "1. Controleer de koelribben en stofophoping in het kassasysteem.\n2. Bekijk de Deep Dive tijdlijn om te zien welke applicatie of driver vlak vóór de crash actief was.",
+    "SuccesScore": 4
+  },
+  {
+    "Titel": "Systeem Crash / Blauw Scherm (BSOD BugCheck)",
+    "Triggers": {
+      "EventIDs": [1001]
+    },
+    "RootCause": "Het systeem is gecrasht met een blauw scherm (BSOD). Dit wijst op beschadigde Windows-systeembestanden, een foute driver (bijv. een oude printer- of pintoesteldriver) of een defect RAM-geheugenmodule.",
+    "Acties": "1. Open CMD als Administrator en voer uit: sfc /scannow\n2. Voer een RAM-geheugentest uit (Windows Memory Diagnostic).\n3. Controleer of er recent nieuwe hardware of drivers (zoals een bonprinter) zijn geïnstalleerd.",
+    "SuccesScore": 5
+  },
+  {
+    "Titel": "Opslagmedium I/O Vertraging / SSD Fout",
+    "Triggers": {
+      "EventIDs": [129]
+    },
+    "RootCause": "De schijf-controller heeft een 'Reset to device' commando gestuurd omdat de SSD/HDD niet op tijd reageerde. Dit is een vroeg signaal van een versleten of crashende SSD/HDD, of een slechte SATA-kabel.",
+    "Acties": "1. Maak direct een back-up van de kassa-database en instellingen.\n2. Controleer de S.M.A.R.T.-status van de SSD.\n3. Vervang preventief de SSD/HDD van de kassa.",
+    "SuccesScore": 5
+  },
+  {
+    "Titel": "Kassa Software of Service Crash",
+    "Triggers": {
+      "EventIDs": [1000]
+    },
+    "RootCause": "Een Windows-applicatie of achtergrondservice (zoals de afrekensoftware, SQL LocalDB of printservice) is onverwacht gecrasht door een uitzonderingsfout.",
+    "Acties": "1. Herstart de specifieke kassa-service of de kassa-applicatie.\n2. Controleer of .NET Framework up-to-date is.\n3. Bekijk de gedetailleerde foutcode in het Windows Applicatielogboek.",
+    "SuccesScore": 3
+  }
 ]

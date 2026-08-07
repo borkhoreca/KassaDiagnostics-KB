@@ -1,56 +1,93 @@
 [
   {
     "Titel": "Onverwachte Stroomuitval of Harde Reset",
-    "Triggers": {
-      "EventIDs": [41]
-    },
-    "RootCause": "De kassa is plotseling uitgevallen zonder netjes af te sluiten. Dit wordt meestal veroorzaakt door stroomonderbreking (stekker getrokken), een defecte of oververhitte voeding (PSU), of een kapotte UPS/noodstroomvoorziening.",
-    "Acties": "1. Controleer de stroomkabel en de stekkerdoos onder het kassa-meubel op losse contacten.\n2. Controleer of de ventilator van de kassa draait (oververhitting).\n3. Test de externe voedingsadapter met een multimeter of vervang deze testgemakshalve.",
+    "Triggers": { "EventIDs": [41] },
+    "RootCause": "De kassa is plotseling uitgevallen zonder netjes af te sluiten (stroomonderbreking, defecte adapter of oververhitting).",
+    "Acties": "1. Controleer kabels en de voeding/adapter.\n2. Controleer op oververhitting/stof in de behuizing.",
     "SuccesScore": 5
   },
   {
     "Titel": "ACPI / Storage Controller Communicatiefout",
-    "Triggers": {
-      "EventIDs": [56]
-    },
-    "RootCause": "De Intel Storage/ACPI driver heeft de verbinding met de SSD/HDD kortstondig verloren. Dit komt veel voor op Intel 300-series en NUC moederborden in combinatie met Windows Energiebeheer (Fast Startup).",
-    "Acties": "1. Schakel 'Snel opstarten' (Fast Startup) uit in Windows Energiebeheer.\n2. Update de Intel Chipset en Serial IO drivers.\n3. Raadpleeg de fabrikant voor een BIOS-update van het kassa-moederbord.",
+    "Triggers": { "EventIDs": [56] },
+    "RootCause": "Intel Storage/ACPI driver heeft kortstondig de verbinding met de schijf verloren (vaak ivm Fast Startup).",
+    "Acties": "1. Schakel Fast Startup uit.\n2. Update Intel Chipset & Serial IO drivers.\n3. Flash het BIOS.",
     "SuccesScore": 4
   },
   {
-    "Titel": "Voorgaande Afsluiting Onverwacht (Crash/Thermal)",
-    "Triggers": {
-      "EventIDs": [6008]
-    },
-    "RootCause": "Windows registreert bij de volgende herstart dat het systeem de vorige keer niet correct is afgesloten. Vaak het directe gevolg van een BSOD, vastloper of thermische uitschakeling ter bescherming van de CPU.",
-    "Acties": "1. Controleer de koelribben en stofophoping in het kassasysteem.\n2. Bekijk de Deep Dive tijdlijn om te zien welke applicatie of driver vlak vóór de crash actief was.",
+    "Titel": "Voorgaande Afsluiting Onverwacht",
+    "Triggers": { "EventIDs": [6008] },
+    "RootCause": "Windows registreert dat het systeem de vorige keer niet netjes is afgesloten (BSOD of stroomtekort).",
+    "Acties": "1. Bekijk de Deep Dive tijdlijn vlak vóór het tijdstip van uitval.",
     "SuccesScore": 4
   },
   {
-    "Titel": "Systeem Crash / Blauw Scherm (BSOD BugCheck)",
-    "Triggers": {
-      "EventIDs": [1001]
-    },
-    "RootCause": "Het systeem is gecrasht met een blauw scherm (BSOD). Dit wijst op beschadigde Windows-systeembestanden, een foute driver (bijv. een oude printer- of pintoesteldriver) of een defect RAM-geheugenmodule.",
-    "Acties": "1. Open CMD als Administrator en voer uit: sfc /scannow\n2. Voer een RAM-geheugentest uit (Windows Memory Diagnostic).\n3. Controleer of er recent nieuwe hardware of drivers (zoals een bonprinter) zijn geïnstalleerd.",
+    "Titel": "Applicatie Crash (Software Fout)",
+    "Triggers": { "EventIDs": [1000] },
+    "RootCause": "Een specifieke Windows- of kassa-applicatie is gecrasht door een geheugenfout of .NET exception.",
+    "Acties": "1. Controleer de details van de crashmodule in het Event-bericht.\n2. Herstart of herinstalleer de betreffende software.",
+    "SuccesScore": 4
+  },
+  {
+    "Titel": "Windows System Crash / BSOD (BugCheck)",
+    "Triggers": { "EventIDs": [1001] },
+    "RootCause": "Systeem crash (Blauw scherm). Veroorzaakt door foute hardware-drivers of beschadigde systeembestanden.",
+    "Acties": "1. Run CMD als Admin: sfc /scannow\n2. Voer een Windows Memory Diagnostic test uit op het RAM-geheugen.",
     "SuccesScore": 5
   },
   {
-    "Titel": "Opslagmedium I/O Vertraging / SSD Fout",
-    "Triggers": {
-      "EventIDs": [129]
-    },
-    "RootCause": "De schijf-controller heeft een 'Reset to device' commando gestuurd omdat de SSD/HDD niet op tijd reageerde. Dit is een vroeg signaal van een versleten of crashende SSD/HDD, of een slechte SATA-kabel.",
-    "Acties": "1. Maak direct een back-up van de kassa-database en instellingen.\n2. Controleer de S.M.A.R.T.-status van de SSD.\n3. Vervang preventief de SSD/HDD van de kassa.",
+    "Titel": "Applicatie Loopt Vast (Application Hang)",
+    "Triggers": { "EventIDs": [1002] },
+    "RootCause": "Een programma reageert niet meer en is door Windows geforceerd beëindigd (meestal door database-locks of netwerk-timeouts).",
+    "Acties": "1. Controleer de netwerkverbinding naar de lokale kassa-server/database.\n2. Controleer schijfruimte op C:\\.",
+    "SuccesScore": 3
+  },
+  {
+    "Titel": "Windows Service Onverwacht Gestopt",
+    "Triggers": { "EventIDs": [7031, 7034] },
+    "RootCause": "Een cruciale achtergrondservice (zoals Print Spooler, SQL Server of Kassadienst) is plotseling gecrasht.",
+    "Acties": "1. Open services.msc en stel 'First failure / Second failure' in op 'Restart the Service'.\n2. Controleer de service-logs.",
     "SuccesScore": 5
   },
   {
-    "Titel": "Kassa Software of Service Crash",
-    "Triggers": {
-      "EventIDs": [1000]
-    },
-    "RootCause": "Een Windows-applicatie of achtergrondservice (zoals de afrekensoftware, SQL LocalDB of printservice) is onverwacht gecrasht door een uitzonderingsfout.",
-    "Acties": "1. Herstart de specifieke kassa-service of de kassa-applicatie.\n2. Controleer of .NET Framework up-to-date is.\n3. Bekijk de gedetailleerde foutcode in het Windows Applicatielogboek.",
+    "Titel": "Service Timeout bij Opstarten",
+    "Triggers": { "EventIDs": [7000, 7009] },
+    "RootCause": "Een Windows service deed er langer dan 30 seconden over om te starten tijdens het opstarten van de kassa (vaak door trage SSD of netwerk-afhankelijkheid).",
+    "Acties": "1. Zet de opstarttype van de betreffende service op 'Automatic (Delayed Start)'.",
+    "SuccesScore": 4
+  },
+  {
+    "Titel": "Opslagmedium I/O Timeout (Disk Reset)",
+    "Triggers": { "EventIDs": [129] },
+    "RootCause": "De schijfcontroller heeft een reset moeten uitvoeren omdat de SSD/HDD niet op tijd reageerde. Vroeg signaal van SSD-slijtage.",
+    "Acties": "1. Maak direct een back-up van de kassa-data.\n2. Controleer S.M.A.R.T. status.\n3. Vervang de SSD.",
+    "SuccesScore": 5
+  },
+  {
+    "Titel": "Schijf Verrassend Verwijderd (Surprise Removal)",
+    "Triggers": { "EventIDs": [157] },
+    "RootCause": "Een schijf (of USB-stick/externe opslag) is losgekoppeld zonder dat Windows deze netjes heeft ontkoppeld.",
+    "Acties": "1. Controleer losse USB- of SATA-kabels.\n2. Zorg dat externe opslag niet voor kassa-databases gebruikt wordt.",
+    "SuccesScore": 4
+  },
+  {
+    "Titel": "NTFS Bestandssysteem Beschadiging",
+    "Triggers": { "EventIDs": [55] },
+    "RootCause": "De MFT of bestandsstructuur op de SSD is beschadigd geraakt, meestal door het wegvallen van de stroom tijdens een schrijfoperatie.",
+    "Acties": "1. Open CMD als Admin.\n2. Voer uit: chkdsk C: /f /r (herstart vereist).",
+    "SuccesScore": 5
+  },
+  {
+    "Titel": "DCOM Machtigingsfout (Gebeurtenis 10016)",
+    "Triggers": { "EventIDs": [10016] },
+    "RootCause": "Een Windows-component probeert een DCOM-server te starten zonder de juiste lokale opstartmachtigingen.",
+    "Acties": "1. Meestal cosmetisch en mag genegeerd worden mits het systeem goed werkt.\n2. Indien nodig Component Services rechten aanpassen.",
+    "SuccesScore": 2
+  },
+  {
+    "Titel": "Windows Update Installatiefout",
+    "Triggers": { "EventIDs": [20] },
+    "RootCause": "Een automatische Windows Update is mislukt tijdens de installatie op de kassa.",
+    "Acties": "1. Voer de Windows Update Probleemoplosser uit.\n2. Leeg de map C:\\Windows\\SoftwareDistribution.",
     "SuccesScore": 3
   }
 ]

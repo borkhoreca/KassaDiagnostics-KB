@@ -1,0 +1,24 @@
+[
+    {
+        "ID": "ISSUE-001",
+        "Titel": "ACPI / Volmgr Crash (Intel 300)",
+        "Triggers": {
+            "EventIDs": [56, 161, 41]
+        },
+        "RootCause": "Harde Hardware/Moederbord Freezes. Systeem valt structureel uit doordat Windows de communicatie met de schijf verliest na een ACPI storing.",
+        "Acties": "1. Update het BIOS van de Intel 300 Series Chipset.\n2. Update de Intel SPI Flash / ACPI drivers.",
+        "SuccesScore": 4,
+        "FaalScore": 0
+    },
+    {
+        "ID": "ISSUE-002",
+        "Titel": "SQL Database Timeout / Corruptie",
+        "Triggers": {
+            "EventIDs": [833, 17890]
+        },
+        "RootCause": "SQL Server kan de schijf niet snel genoeg wegschrijven (I/O bottleneck) of database is verdacht.",
+        "Acties": "1. Draai DBCC CHECKDB op de kassa.\n2. Controleer via SMART-tools of de SSD aan het falen is.",
+        "SuccesScore": 12,
+        "FaalScore": 1
+    }
+]

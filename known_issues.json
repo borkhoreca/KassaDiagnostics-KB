@@ -238,6 +238,13 @@
     "SuccesScore": 4
   },
   {
+    "Titel": "Memory Integrity Blokkeert Randapparatuur",
+    "Triggers": { "EventIDs": [3004, 3002] },
+    "RootCause": "Windows Memory Integrity (Core Isolation / VBS) staat ingeschakeld, maar heeft een verouderd of incompatibel stuurprogramma geblokkeerd. Dit veroorzaakt op kassasystemen vaak uitval van specifieke bonprinters, weegschalen of scanners, of resulteert in een Blue Screen.",
+    "Acties": "1. **Identificeer de driver:** Bekijk in Windows Beveiliging (Apparaatbeveiliging -> Kernisolatie details) welk stuurprogramma incompatibel is.\n2. **Update of deactiveer:** Probeer eerst een nieuwere driver van de fabrikant te installeren. Als de randapparatuur cruciaal is en er is geen update, overweeg dan (tijdelijk) Memory Integrity uit te schakelen via de instellingen.",
+    "SuccesScore": 4
+  },
+  {
     "Titel": "Cosmetische Waarschuwingen (RUIS)",
     "Triggers": { "EventIDs": [131, 200, 201, 202, 10016, 36871, 36874, 36888, 1116] },
     "RootCause": "Dit zijn cosmetische fouten (DCOM configuratie rechten, Device Setup, verouderde Schannel TLS versies, Windows Defender status updates). Volgens Microsoft volledig onschadelijk.",

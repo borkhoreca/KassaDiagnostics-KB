@@ -244,6 +244,20 @@
     "Acties": "1. **Identificeer de driver:** Bekijk in Windows Beveiliging (Apparaatbeveiliging -> Kernisolatie details) welk stuurprogramma incompatibel is.\n2. **Update of deactiveer:** Probeer eerst een nieuwere driver van de fabrikant te installeren. Als de randapparatuur cruciaal is en er is geen update, overweeg dan (tijdelijk) Memory Integrity uit te schakelen via de instellingen.",
     "SuccesScore": 4
   },
+    {
+    "Titel": "CPU Thermal Throttling (Geknepen op ~0.7-0.8 GHz)",
+    "Triggers": { "EventIDs": [ 37, 34, 35 ] },
+    "RootCause": "De processor wordt door het BIOS of firmware geforceerd teruggeklokt naar een minimale snelheid (~0.7 tot 0.8 GHz). Dit gebeurt wanneer de CPU te heet wordt (uitgedroogde koelpasta, defecte ventilator of kassa-behuizing vol vet en stof), of bij een defecte temperatuursensor. De kassa reageert hierdoor extreem traag op elke aanraking!",
+    "Acties": "1. **Fysieke inspectie:** Controleer of de kassa-ventilator nog draait en of de luchtinlaten niet verstopt zitten met horecavet of stof.\n2. **Koeling herstellen:** Maak de heatsink schoon met perslucht en vervang zonodig de koelpasta op de processor.\n3. **Energiebeheer controleren:** Zet Windows op High Performance om agressieve OS power-throttling uit te sluiten:\n[CMD: powercfg /setactive 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c]\n4. **BIOS / Sensor check:** Indien de kassa zelfs na een half uur uitstaan direct 90°C meldt, is de interne temperatuursensor op het moederbord of de CPU defect en moet het moederbord/terminal vervangen worden.",
+    "SuccesScore": 5
+  },
+  {
+    "Titel": "Kritieke Temperatuur / Thermal Emergency Shutdown",
+    "Triggers": { "EventIDs": [ 86, 15, 16 ] },
+    "RootCause": "De kassa Thermal Zone (CPU/moederbord) heeft een kritieke temperatuurgrens bereikt (>90°C tot 100°C). Windows heeft uit zelfbescherming een thermische noodstop (shutdown) of extreme prestatieverlaging geïnitieerd om verbranding van de processor te voorkomen.",
+    "Acties": "1. **Zet de kassa direct uit en laat afkoelen:** Laat de kassa niet doordraaien bij 90°C+.\n2. **Ventilator en heatsink controleren:** Vaak zit de ventilator vast door vet of stof, of is de ventilatorconnector losgeraakt.\n3. **Vervang koelpasta:** Breng nieuwe thermische pasta aan tussen CPU en heatsink.\n4. **Plaatsing:** Zorg dat de kassa terminal niet direct boven een warmhoudplaat, oven of koffiemachine staat.",
+    "SuccesScore": 5
+  }
   {
     "Titel": "Cosmetische Waarschuwingen (RUIS)",
     "Triggers": { "EventIDs": [131, 200, 201, 202, 10016, 36871, 36874, 36888, 1116] },

@@ -1,250 +1,257 @@
 [
   {
     "Titel": "Stroomuitval of Harde Reset (Kernel-Power)",
-    "Triggers": { "EventIDs": [41, 6008] },
+    "Triggers": { "EventIDs": [ 41, 6008 ] },
     "RootCause": "De kassa is plotseling uitgevallen zonder netjes af te sluiten. Dit is vaak een stroomonderbreking, een defecte adapter, oververhitting of geforceerd uitschakelen door de gebruiker.",
     "Acties": "1. **Fast Startup uitschakelen (Voorkom driver corruptie):**\n[CMD: powercfg -h off]\n\n2. **Controleer hardware:**\nVerifieer of de voeding en stekkers goed vastzitten en de kassa niet oververhit raakt.",
     "SuccesScore": 5
   },
   {
     "Titel": "Windows Service ngrok spamt Event 7031 (Crashes)",
-    "Triggers": { "EventIDs": [7031] },
+    "Triggers": { "EventIDs": [ 7031 ] },
     "RootCause": "De ngrok service staat geregistreerd in Windows maar het uitvoerbare bestand ontbreekt of crasht. Windows Service Manager blijft de dienst op de achtergrond 4x per minuut proberen te starten.",
     "Acties": "1. **Ruim de ngrok-geest op via CMD:**\nKlik op de knop hieronder om de vastgelopen service definitief uit Windows te verwijderen:\n\n[CMD: sc delete ngrok]\n\n2. **Malwarebytes / Schijf belasting:**\nOp een kassa met 16 GB RAM is 400 MB geheugengebruik voor antivirus normaal. Controleer in Taakbeheer tabblad 'Prestaties' -> 'Schijf' of de SSD/HDD overbelast is.",
     "SuccesScore": 5
   },
   {
     "Titel": "Normale / Verwachte Herstart",
-    "Triggers": { "EventIDs": [1074, 6005, 6006] },
+    "Triggers": { "EventIDs": [ 1074, 6005, 6006 ] },
     "RootCause": "Het systeem is netjes afgesloten of opgestart. Geen fout, maar handig om in de tijdlijn te zien of de klant zelf de kassa heeft herstart of dat Windows Update dit deed.",
     "Acties": "1. Ter informatie. Controleer de details om te zien wélk proces de herstart heeft aangevraagd (bijv. wuauclt.exe voor updates of User.exe).",
     "SuccesScore": 5
   },
   {
     "Titel": "Hardware Waarschuwing / ACPI Fout",
-    "Triggers": { "EventIDs": [56, 17, 18, 19, 46] },
+    "Triggers": { "EventIDs": [ 56, 17, 18, 19, 46 ] },
     "RootCause": "De Windows Hardware Error Architecture (WHEA) of ACPI driver detecteert instabiliteit. Vaak CPU, PCIe-bus, of communicatieverlies met het moederbord in verband met de slaapstand.",
     "Acties": "1. Schakel Fast Startup direct uit:\n[CMD: powercfg -h off]\n2. Update het BIOS.\n3. Controleer de temperatuur van de kassa (oververhitting).",
     "SuccesScore": 4
   },
   {
     "Titel": "SSD / Harde Schijf Faalt (Kritiek)",
-    "Triggers": { "EventIDs": [7, 11, 51, 129, 153, 157] },
+    "Triggers": { "EventIDs": [ 7, 11, 51, 129, 153, 157 ] },
     "RootCause": "Ernstige opslagproblemen: I/O timeouts, beschadigde datablokken of hardware resets. De SSD/Harde Schijf staat op het punt fysiek te crashen.",
     "Acties": "1. **MAAK DIRECT EEN BACK-UP!**\n2. Controleer de schijf op fouten en beschadigde sectoren:\n[CMD: chkdsk C: /f /r]\n3. Bereid fysieke vervanging van de SSD voor. Controleer de SMART status via de app.",
     "SuccesScore": 5
   },
   {
     "Titel": "NTFS Bestandssysteem Corrupt",
-    "Triggers": { "EventIDs": [55, 98, 130, 140] },
+    "Triggers": { "EventIDs": [ 55, 98, 130, 140 ] },
     "RootCause": "De MFT of datastructuur op de C: schijf is beschadigd, vaak door stroomuitval tijdens schrijven of een geforceerde harde reset.",
     "Acties": "1. Voer een schijfcontrole uit (dit vereist een herstart van de kassa):\n[CMD: echo Y | chkdsk C: /f]\n2. Herstart de kassa daarna onmiddellijk via:\n[CMD: shutdown /r /t 0]",
     "SuccesScore": 5
   },
   {
-    "Titel": "Virtueel Geheugen Vol (Resource Exhaustion)",
-    "Triggers": { "EventIDs": [2004, 2011, 2020] },
-    "RootCause": "De kassa heeft onvoldoende werkgeheugen (RAM) beschikbaar om programma's te draaien. Windows forceert sluiting van achtergrondprocessen om in leven te blijven.",
-    "Acties": "1. Bekijk in Taakbeheer (Tabblad Processen) welke app een memory leak heeft:\n[CMD: taskmgr]\n2. Voor een diepgaande analyse van het RAM gebruik open je de broncontrole:\n[CMD: resmon]",
+    "Titel": "Virtueel Geheugen Uitputting (Resource Exhaustion)",
+    "Triggers": { "EventIDs": [ 2004, 2011, 2020 ] },
+    "RootCause": "Windows is door het virtuele geheugen (RAM + Wisselbestand/Pagefile) heen geschoten. Vaak veroorzaakt door een service leak in svchost.exe (bijv. Windows Update, DPS of een database dump/backup script om 06:00 uur) of een SQL Server / Java geheugenlek.",
+    "Acties": "1. **Identificeer Services in svchost:**\nBekijk welke Windows services draaien onder svchost processen:\n[CMD: tasklist /svc /fi \"imagename eq svchost.exe\"]\n\n2. **Controleer Geplande Taken (06:00 uur dump):**\nOpen Taakplanner en controleer welke backup/dump scripts draaien rond de crash-tijd:\n[CMD: taskschd.msc]\n\n3. **Schakel Diagnostic Policy Service (DPS) memory leak uit:**\nAls svchost blijft vollopen door logverwerking, herstart de service:\n[CMD: net stop dps & net start dps]\n\n4. **Broncontrole:**\n[CMD: resmon]",
     "SuccesScore": 5
   },
   {
     "Titel": "Applicatie Crash (Software Fout)",
-    "Triggers": { "EventIDs": [1000, 1026, 1023, 1024, 1025] },
+    "Triggers": { "EventIDs": [ 1000, 1026, 1023, 1024, 1025 ] },
     "RootCause": "Een specifieke Windows- of kassa-applicatie (.NET of C++) is onverwacht gecrasht door een bug, corrupte bestanden of een onverwachte geheugenfout.",
     "Acties": "1. Lees het originele eventbericht in de app om de falende 'Application Path' of .dll te identificeren.\n2. Herstart of update deze specifieke kassa software of de bijbehorende plugin.",
     "SuccesScore": 4
   },
   {
     "Titel": "EA.EAMBAMPlugin / MBAM Installer Service Fout",
-    "Triggers": { "EventIDs": [65132, 32952, 43055, 62815, 37642] },
+    "Triggers": { "EventIDs": [ 65132, 32952, 43055, 62815, 37642 ] },
     "RootCause": "Fout bij het aanmaken of laden van de MBAM Installer Service / Middleware plugin (Unable to create MBAM Installer Service. Code 1) of cascade-falen van een enterprise plugin.",
     "Acties": "1. **Service Herstarten:** Herstart de applicatie en middleware.\n2. **Bestandsintegriteit:** Controleer of de plugin-bestanden beschadigd zijn na een update.\n3. Controleer of het service-account voldoende lees/schrijfrechten heeft in de map.",
     "SuccesScore": 4
   },
   {
     "Titel": "Systeem Crash / BSOD (BugCheck)",
-    "Triggers": { "EventIDs": [1001] },
+    "Triggers": { "EventIDs": [ 1001 ] },
     "RootCause": "Blauw scherm of Blue Screen of Death. Dit wordt vaak veroorzaakt door foute hardware-drivers of beschadigde systeembestanden (Windows Corruptie).",
     "Acties": "1. Repareer Windows systeembestanden (scant op corrupte bestanden):\n[CMD: sfc /scannow]\n2. Test het RAM geheugen op hardware defecten:\n[CMD: mdsched.exe]",
     "SuccesScore": 5
   },
   {
     "Titel": "Applicatie Loopt Vast (App Hang)",
-    "Triggers": { "EventIDs": [1002] },
+    "Triggers": { "EventIDs": [ 1002 ] },
     "RootCause": "Een applicatie (vaak de kassa-UI of database) reageerde niet meer en werd door Windows of de gebruiker geforceerd gesloten via Taakbeheer of het kruisje.",
     "Acties": "1. Controleer of de netwerkverbinding of database-connectie is weggevallen.\n2. Kijk of de opslagschijf (C:) 100% in gebruik was tijdens de vastloper. Dit kan wijzen op Windows Update activiteiten op de achtergrond.",
     "SuccesScore": 3
   },
   {
     "Titel": "Windows Service Startproblemen",
-    "Triggers": { "EventIDs": [7000, 7009, 7011, 7022, 7023, 7024, 7016] },
+    "Triggers": { "EventIDs": [ 7000, 7009, 7011, 7022, 7023, 7024, 7016 ] },
     "RootCause": "Een achtergrondservice deed er te lang over om te starten, bleef hangen (timeout) of weigerde op te starten door een afhankelijkheidsfout.",
     "Acties": "1. Open de Service Manager en zoek de betreffende dienst. Zet het opstarttype op 'Automatisch (Vertraagd starten)':\n[CMD: services.msc]",
     "SuccesScore": 4
   },
   {
     "Titel": "Windows Service Crash",
-    "Triggers": { "EventIDs": [7032, 7034] },
+    "Triggers": { "EventIDs": [ 7032, 7034 ] },
     "RootCause": "Een actieve service crashte onverwachts. Veelvoorkomend bij Print Spoolers, oude SQL Express instances of integratie plugins.",
     "Acties": "1. Open de Service Manager. Rechtermuisknop op de service -> Eigenschappen -> Tabblad Herstel. Stel de eerste actie in op 'Service opnieuw opstarten':\n[CMD: services.msc]",
     "SuccesScore": 4
   },
   {
     "Titel": "Netwerk DNS Resolutie Timeout",
-    "Triggers": { "EventIDs": [1014, 10000] },
+    "Triggers": { "EventIDs": [ 1014, 10000 ] },
     "RootCause": "De kassa kan domeinnamen niet meer vertalen naar IP-adressen (bijv. cloudkassa.nl). Vaak veroorzaakt door een haperend lokaal netwerk of verkeerde DNS-instellingen.",
     "Acties": "1. Reset de netwerkadapter en spoel de DNS cache:\n[CMD: ipconfig /flushdns]\n2. Controleer actieve netwerkverbindingen en adapter instellingen:\n[CMD: ncpa.cpl]",
     "SuccesScore": 5
   },
   {
     "Titel": "Netwerk Poort Uitputting (Port Exhaustion)",
-    "Triggers": { "EventIDs": [4227, 4231] },
+    "Triggers": { "EventIDs": [ 4227, 4231 ] },
     "RootCause": "De kassa heeft alle beschikbare TCP/IP netwerkpoorten verbruikt. Vaak veroorzaakt door software die netwerkverbindingen wel opent maar niet sluit (memory leak in de netwerklaag).",
     "Acties": "1. Herstart de kassa om alle TCP poorten direct weer vrij te geven.\n2. Bekijk de lijst met actieve verbindingen om de boosdoener (het PID) te vinden:\n[CMD: netstat -anb]",
     "SuccesScore": 4
   },
   {
     "Titel": "USB / Plug and Play Apparaat Fout",
-    "Triggers": { "EventIDs": [219] },
+    "Triggers": { "EventIDs": [ 219 ] },
     "RootCause": "Verbinding met een USB-apparaat (scanner, bonprinter, weegschaal) of het stuurprogramma is mislukt. Vaak doordat Windows Energiebeheer de USB poort onterecht uitschakelt.",
     "Acties": "1. Open Apparaatbeheer om onbekende of uitroepteken apparaten te zoeken:\n[CMD: devmgmt.msc]\n2. Schakel 'USB selectieve onderbreking' uit in de actieve Windows energie-instellingen.",
     "SuccesScore": 4
   },
   {
     "Titel": "Tijdsynchronisatie (W32Time) Fout",
-    "Triggers": { "EventIDs": [29, 36, 134] },
+    "Triggers": { "EventIDs": [ 29, 36, 134 ] },
     "RootCause": "De kassa-klok loopt niet synchroon met de tijdserver. Dit is dodelijk voor kassasystemen (SSL certificaten, pinautomaat-transacties en API tokens zullen hierdoor direct falen).",
     "Acties": "1. Forceer een tijd-synchronisatie (NTP) met de Windows servers:\n[CMD: w32tm /resync]\n2. Start de Windows tijdservice opnieuw:\n[CMD: net stop w32time & net start w32time]",
     "SuccesScore": 5
   },
   {
     "Titel": "Group Policy / Domein Probleem",
-    "Triggers": { "EventIDs": [1054, 1058, 1085, 1129] },
+    "Triggers": { "EventIDs": [ 1054, 1058, 1085, 1129 ] },
     "RootCause": "De kassa kan de domeincontroller niet bereiken of het verwerken van het groepsbeleid (GPO) is mislukt. Dit zorgt vaak voor inlogproblemen of het ontbreken van netwerkschijven (Z:).",
     "Acties": "1. Forceer een GPO update op de achtergrond. De kassa haalt direct de laatste regels op:\n[CMD: gpupdate /force]",
     "SuccesScore": 4
   },
   {
     "Titel": "Windows Update of Software Installatie Fouten",
-    "Triggers": { "EventIDs": [16, 18, 19, 20, 25, 43, 1008, 11707, 1033] },
+    "Triggers": { "EventIDs": [ 16, 18, 19, 20, 25, 43, 1008, 11707, 1033 ] },
     "RootCause": "Een Windows Update kon niet worden gedownload, of een softwarepakket (MSI) faalde op de achtergrond. Vaak door een corrupt distributie-archief of onvoldoende schijfruimte.",
     "Acties": "1. Start de Windows Update instellingen pagina direct op:\n[CMD: ms-settings:windowsupdate]\n2. Leeg C:\\Windows\\SoftwareDistribution indien het downloaden blijft falen.\n3. Bekijk de Recente Updates lijst in deze app om de boosdoener te lokaliseren.",
     "SuccesScore": 3
   },
   {
     "Titel": "Verkeerd Wachtwoord / Account Lockout",
-    "Triggers": { "EventIDs": [4625, 4740] },
+    "Triggers": { "EventIDs": [ 4625, 4740 ] },
     "RootCause": "Iemand (of een achtergrondservice met een verouderd wachtwoord) probeert in te loggen en faalt herhaaldelijk. Het account is mogelijk geblokkeerd (lockout) door het beveiligingsbeleid.",
     "Acties": "1. Controleer of de gebruiker het juiste wachtwoord gebruikt en CAPS LOCK uit staat.\n2. Open Referentiebeheer om fout opgeslagen Windows- of netwerkwachtwoorden te wissen:\n[CMD: control keymgr.dll]",
     "SuccesScore": 5
   },
   {
     "Titel": "Remote Desktop (RDP) Fout",
-    "Triggers": { "EventIDs": [1149, 4005, 21, 24, 25, 39, 40] },
+    "Triggers": { "EventIDs": [ 1149, 4005, 21, 24, 25, 39, 40 ] },
     "RootCause": "Problemen met Remote Desktop verbindingen. Iemand probeerde in te loggen, maar de sessie-host reageerde onverwacht (hang) of de verbinding werd abrupt verbroken.",
     "Acties": "1. Controleer de RDP achtergrond services.\n2. Bekijk de actieve of hangende RDP sessies (uitvoeren als administrator):\n[CMD: query user]",
     "SuccesScore": 3
   },
   {
     "Titel": "Nieuwe Windows Service Geïnstalleerd",
-    "Triggers": { "EventIDs": [7045] },
+    "Triggers": { "EventIDs": [ 7045 ] },
     "RootCause": "Een nieuwe Windows-service is geregistreerd. Dit kan legitieme software zijn, maar ook malware of ongewenste software die persistentie probeert te verkrijgen.",
     "Acties": "1. Controleer het opgegeven executable pad in de event-details.\n2. Verifieer of deze software bewust geïnstalleerd is.\n3. Verwijder onbekende services indien nodig:\n[CMD: services.msc]",
     "SuccesScore": 4
   },
   {
     "Titel": "Volume Shadow Copy (VSS) Fout",
-    "Triggers": { "EventIDs": [8193, 13, 12289] },
+    "Triggers": { "EventIDs": [ 8193, 13, 12289 ] },
     "RootCause": "Probleem met Volume Shadow Copy Services. Dit kan back-ups, snapshots, herstelpunten of imaging-processen verstoren.",
     "Acties": "1. Controleer de status van de VSS writers:\n[CMD: vssadmin list writers]\n2. Herstart de VSS service:\n[CMD: net stop vss & net start vss]",
     "SuccesScore": 4
   },
   {
     "Titel": "Driver Framework Probleem (WUDF)",
-    "Triggers": { "EventIDs": [10110, 10111] },
+    "Triggers": { "EventIDs": [ 10110, 10111 ] },
     "RootCause": "Een apparaatdriver reageert niet meer of kon niet worden geladen. Zeer vaak veroorzaakt door vastgelopen USB-randapparatuur, scanners of bonprinters.",
     "Acties": "1. Koppel recent aangesloten USB-apparatuur los.\n2. Controleer Apparaatbeheer op vastgelopen drivers:\n[CMD: devmgmt.msc]",
     "SuccesScore": 4
   },
   {
     "Titel": "WMI Repository Corruptie",
-    "Triggers": { "EventIDs": [10, 28, 65] },
+    "Triggers": { "EventIDs": [ 10, 28, 65 ] },
     "RootCause": "Windows Management Instrumentation (WMI) levert inconsistente gegevens. Monitoringsoftware, beheeragents en scripts falen hierdoor.",
     "Acties": "1. Controleer de WMI repository:\n[CMD: winmgmt /verifyrepository]\n2. Indien er corruptie is gemeld, herstel deze dan via:\n[CMD: winmgmt /salvagerepository]",
     "SuccesScore": 4
   },
   {
     "Titel": "TLS / SSL Communicatiefout (Schannel)",
-    "Triggers": { "EventIDs": [36887, 36886, 36884, 36882] },
+    "Triggers": { "EventIDs": [ 36887, 36886, 36884, 36882 ] },
     "RootCause": "Versleutelde communicatie met een externe server is mislukt. Dit komt vaak door verouderde TLS-versies in oude software, of een pinautomaat die het certificaat weigert.",
     "Acties": "1. Controleer rechtsonderin Windows of de datum en tijd kloppen.\n2. Werk de betreffende applicatie bij, of forceer moderne TLS afhandeling via het register.",
     "SuccesScore": 3
   },
   {
     "Titel": "Windows Installer Herstel of Installatielus",
-    "Triggers": { "EventIDs": [1035, 11708, 11724] },
+    "Triggers": { "EventIDs": [ 1035, 11708, 11724 ] },
     "RootCause": "Een MSI-installatie, update of automatische software-reparatie mislukt continu. Dit veroorzaakt vaak een hoge, onverklaarbare CPU- en schijfbelasting.",
     "Acties": "1. Identificeer de betrokken software uit het eventbericht.\n2. Open 'Apps en Onderdelen' om deze software volledig te verwijderen en schoon te installeren:\n[CMD: appwiz.cpl]",
     "SuccesScore": 4
   },
   {
     "Titel": "Windows Defender of Antivirus Detectie",
-    "Triggers": { "EventIDs": [1117, 1118, 1119, 1121, 5001, 5007, 5010] },
+    "Triggers": { "EventIDs": [ 1117, 1118, 1119, 1121, 5001, 5007, 5010 ] },
     "RootCause": "Microsoft Defender heeft malware, een potentieel ongewenste applicatie, of een verdachte wijziging in de configuratie gedetecteerd.",
     "Acties": "1. Open Windows Beveiliging en controleer de detectiegeschiedenis.\n2. Start direct een volledige scan om te controleren of het systeem nu schoon is.",
     "SuccesScore": 5
   },
   {
     "Titel": "Certificaat Validatie Probleem",
-    "Triggers": { "EventIDs": [4107, 11] },
+    "Triggers": { "EventIDs": [ 4107, 11 ] },
     "RootCause": "Windows kan een certificaatketen of root-certificaat niet valideren. Hierdoor weigeren cloudservices, API's of pinautomaten de verbinding.",
     "Acties": "1. Forceer een exacte tijd-synchronisatie:\n[CMD: w32tm /resync]\n2. Update Windows om de nieuwste root-certificaten binnen te halen.",
     "SuccesScore": 4
   },
   {
     "Titel": "Netwerkadapter Verbindingsverlies",
-    "Triggers": { "EventIDs": [4201, 27, 1001, 1002, 1003, 1007] },
+    "Triggers": { "EventIDs": [ 4201, 27, 1001, 1002, 1003, 1007 ] },
     "RootCause": "De netwerkadapter verloor de verbinding of kreeg geen DHCP IP-adres. Dit is dodelijk voor cloudkassa's, databases of betaalterminals.",
     "Acties": "1. Controleer fysieke netwerkkabels en de switch.\n2. Spoel de DNS en vraag een nieuw IP-adres aan:\n[CMD: ipconfig /release & ipconfig /renew]",
     "SuccesScore": 5
   },
   {
     "Titel": "Windows Firewall Blokkeert Verkeer",
-    "Triggers": { "EventIDs": [5152, 5157] },
+    "Triggers": { "EventIDs": [ 5152, 5157 ] },
     "RootCause": "De Firewall heeft een netwerkverbinding actief geblokkeerd. Vaak de oorzaak bij het niet kunnen vinden van lokale bonprinters of pinautomaten.",
     "Acties": "1. Controleer in het logboekbericht welk proces (welke applicatie) geblokkeerd wordt.\n2. Open de Firewall en voeg handmatig een uitzonderingsregel toe:\n[CMD: wf.msc]",
     "SuccesScore": 4
   },
   {
     "Titel": "Windows Gebruikersprofiel Corrupt",
-    "Triggers": { "EventIDs": [1511, 1515, 1508, 1509] },
+    "Triggers": { "EventIDs": [ 1511, 1515, 1508, 1509 ] },
     "RootCause": "Windows kan het accountprofiel (de C:\\Users\\... map) niet inladen en is mogelijk gestart met een tijdelijk profiel. Hierdoor lijkt de kassa 'leeg' (bureaublad iconen weg).",
     "Acties": "1. Maak als administrator een nieuwe Windows-gebruiker aan en kopieer de data over.\n2. Controleer de schijf op hardware-fouten die deze corruptie hebben veroorzaakt:\n[CMD: chkdsk C: /f]",
     "SuccesScore": 5
   },
   {
-    "Titel": "Print Spooler / Printer Probleem",
-    "Triggers": { "EventIDs": [372, 808, 842, 6161] },
-    "RootCause": "De achtergronddienst voor het afdrukken is vastgelopen of een print-driver weigert dienst. Dit blokkeert het afdrukken van alle bonnen.",
-    "Acties": "1. Herstart de Print Spooler service direct:\n[CMD: net stop spooler & net start spooler]\n2. Verwijder vastzittende printopdrachten uit de wachtrij via Instellingen.",
+    "Titel": "Print Spooler / Bonprinter Loopt Vast",
+    "Triggers": { "EventIDs": [ 372, 808, 842, 6161, 7031, 7034 ] },
+    "RootCause": "De Print Spooler achtergronddienst is gecrasht of een corrupte printopdracht blokkeert alle bonprinters (keuken/bar). Dit legt het afdrukken van bonnen volledig plat.",
+    "Acties": "1. **Forceer Reset & Maak Printwachtrij Leeg (Aanbevolen):**\nKlik op de knop hieronder om de spooler te stoppen, vastzittende corrupte printbestanden direct te wissen en de dienst schoon te herstarten:\n\n[CMD: net stop spooler & del /Q /F /S \"%systemroot%\\System32\\Spool\\Printers\\*.*\" & net start spooler]\n\n2. Controleer of de bonprinter nog voldoende papier heeft en de USB/netwerkkabel vastzit.",
     "SuccesScore": 5
   },
   {
-    "Titel": "SQL Database / Express Probleem",
-    "Triggers": { "EventIDs": [17055, 18456, 17806, 9002] },
-    "RootCause": "De lokale database-server weigert de kassa-applicatie toegang, of de database logfile is vol (Event 9002).",
-    "Acties": "1. Herstart de SQL services.\n2. Controleer of het 'sa' wachtwoord in de kassa nog klopt.\n3. Kijk of er voldoende schijfruimte vrij is om de database te laten groeien.",
-    "SuccesScore": 4
+    "Titel": "SQL Database / Express Probleem (Kassa DB)",
+    "Triggers": { "EventIDs": [ 17055, 17187, 18456, 17806, 9002 ] },
+    "RootCause": "De lokale of netwerk SQL Server (Express) weigert de kassa-applicatie toegang (fout 18456: inloggen mislukt), kan niet starten of het transactielogbestand (LDF) is vol (Event 9002).",
+    "Acties": "1. **Herstart SQL Express Services:**\n[CMD: net stop MSSQL$SQLEXPRESS & net start MSSQL$SQLEXPRESS]\n\n2. **Controleer schijfruimte:**\nVerifieer dat schijf C: niet 100% vol is waardoor de database niet meer kan groeien.\n\n3. Controleer de database-instellingen in de kassa configuratie.",
+    "SuccesScore": 5
   },
   {
     "Titel": "Memory Integrity Blokkeert Randapparatuur",
-    "Triggers": { "EventIDs": [3004, 3002] },
+    "Triggers": { "EventIDs": [ 3004, 3002 ] },
     "RootCause": "Windows Memory Integrity (Core Isolation / VBS) staat ingeschakeld, maar heeft een verouderd of incompatibel stuurprogramma geblokkeerd. Dit veroorzaakt op kassasystemen vaak uitval van specifieke bonprinters, weegschalen of scanners, of resulteert in een Blue Screen.",
     "Acties": "1. **Identificeer de driver:** Bekijk in Windows Beveiliging (Apparaatbeveiliging -> Kernisolatie details) welk stuurprogramma incompatibel is.\n2. **Update of deactiveer:** Probeer eerst een nieuwere driver van de fabrikant te installeren. Als de randapparatuur cruciaal is en er is geen update, overweeg dan (tijdelijk) Memory Integrity uit te schakelen via de instellingen.",
     "SuccesScore": 4
   },
-    {
+  {
+    "Titel": "Cosmetische Waarschuwingen (RUIS)",
+    "Triggers": { "EventIDs": [ 131, 200, 201, 202, 10016, 36871, 36874, 36888, 1116 ] },
+    "RootCause": "Dit zijn cosmetische fouten (DCOM configuratie rechten, Device Setup, verouderde Schannel TLS versies, Windows Defender status updates). Volgens Microsoft volledig onschadelijk.",
+    "Acties": "Ruis-melding. Geen technische actie vereist. De Kassa Diagnostics app filtert dit soort ruis in het hoofdscherm al veilig voor je weg.",
+    "SuccesScore": 5
+  },
+  {
     "Titel": "CPU Thermal Throttling (Geknepen op ~0.7-0.8 GHz)",
     "Triggers": { "EventIDs": [ 37, 34, 35 ] },
     "RootCause": "De processor wordt door het BIOS of firmware geforceerd teruggeklokt naar een minimale snelheid (~0.7 tot 0.8 GHz). Dit gebeurt wanneer de CPU te heet wordt (uitgedroogde koelpasta, defecte ventilator of kassa-behuizing vol vet en stof), of bij een defecte temperatuursensor. De kassa reageert hierdoor extreem traag op elke aanraking!",
@@ -256,13 +263,6 @@
     "Triggers": { "EventIDs": [ 86, 15, 16 ] },
     "RootCause": "De kassa Thermal Zone (CPU/moederbord) heeft een kritieke temperatuurgrens bereikt (>90°C tot 100°C). Windows heeft uit zelfbescherming een thermische noodstop (shutdown) of extreme prestatieverlaging geïnitieerd om verbranding van de processor te voorkomen.",
     "Acties": "1. **Zet de kassa direct uit en laat afkoelen:** Laat de kassa niet doordraaien bij 90°C+.\n2. **Ventilator en heatsink controleren:** Vaak zit de ventilator vast door vet of stof, of is de ventilatorconnector losgeraakt.\n3. **Vervang koelpasta:** Breng nieuwe thermische pasta aan tussen CPU en heatsink.\n4. **Plaatsing:** Zorg dat de kassa terminal niet direct boven een warmhoudplaat, oven of koffiemachine staat.",
-    "SuccesScore": 5
-  }
-  {
-    "Titel": "Cosmetische Waarschuwingen (RUIS)",
-    "Triggers": { "EventIDs": [131, 200, 201, 202, 10016, 36871, 36874, 36888, 1116] },
-    "RootCause": "Dit zijn cosmetische fouten (DCOM configuratie rechten, Device Setup, verouderde Schannel TLS versies, Windows Defender status updates). Volgens Microsoft volledig onschadelijk.",
-    "Acties": "Ruis-melding. Geen technische actie vereist. De Kassa Diagnostics app filtert dit soort ruis in het hoofdscherm al veilig voor je weg.",
     "SuccesScore": 5
   }
 ]
